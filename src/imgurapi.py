@@ -76,5 +76,5 @@ class ImgurAPI:
     def generate_meta_data(self, album_hash):
         infos = self.get_infos(album_hash)
 
-        with open(f"temp/{album_hash}/meta.json", 'w') as meta_file:
-            json.dump(infos, meta_file, indent=2)
+        with open(f'temp/{album_hash}/meta.json', 'a', encoding='utf-8') as meta_file:
+            json.dump(infos, meta_file, indent=2, ensure_ascii=False)

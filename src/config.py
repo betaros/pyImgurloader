@@ -1,8 +1,9 @@
 import json
+from pathlib import Path
 
 
 def get_config():
-    with open('config.json') as config_file:
+    with open(Path('config.json'), 'r') as config_file:
         return json.load(config_file)
 
 
@@ -14,5 +15,8 @@ def get_client_secret():
     return get_config()['client_secret']
 
 
-def set_config(client_id, client_secret):
-    return None
+def set_config(client):
+    with open(Path('config.json'), 'w', encoding='utf-8') as config_file:
+        json.dump(client, config_file, indent=2)
+
+    return client

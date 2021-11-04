@@ -1,9 +1,10 @@
 from flask import Flask
-from flask_restx import Api, Resource
+from flask_restx import Api, Resource, fields
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 from src import config
 from src.imgurapi import ImgurAPI
+from src.packer import Packer
 
 app = Flask(__name__)
 app.wsgi_app = ProxyFix(app.wsgi_app)
@@ -15,6 +16,11 @@ config_namespace = api.namespace('config', description='Config settings')
 imgur_namespace = api.namespace('imgur', description='Imgur API')
 packer_namespace = api.namespace('packer', description='Packs images')
 
+config_model = api.model('Config_model', {
+    'client_id': fields.String(required=True, description='Client id'),
+    'client_secret': fields.String(required=True, description='Client secret')
+})
+
 
 @config_namespace.route('/')
 class Configuration(Resource):
@@ -24,8 +30,10 @@ class Configuration(Resource):
         return config.get_config()
 
     @config_namespace.doc('Set current config')
-    def put(self, client_id, client_secret):
-        conf = config.set_config(client_id, client_secret)
+    @config_namespace.expect(config_model)
+    @config_namespace.marshal_with(config_model)
+    def put(self):
+        conf = config.set_config(api.payload)
 
         return conf
 
@@ -45,10 +53,12 @@ class Imgur(Resource):
         return imgur_api.get_images(album_hash)
 
 
-@packer_namespace.route('/')
+@packer_namespace.route('/<string:album_hash>')
+@imgur_namespace.param('album_hash', "Hash string of the album")
 class Packer(Resource):
 
     def get(self):
+
         return None
 
 
