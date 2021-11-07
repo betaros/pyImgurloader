@@ -1,13 +1,18 @@
 import json
 from pathlib import Path
+from flask_restx import abort
 
-from src.utils import get_project_root
+from utils import get_project_root
 
 
 def get_config():
     root = get_project_root()
-    with open(Path(root, 'config.json'), 'r') as config_file:
-        return json.load(config_file)
+    file_path = Path(root, 'config.json')
+    if file_path.is_file():
+        with open(file_path, 'r') as config_file:
+            return json.load(config_file)
+    else:
+        return abort(404, custom='Not found')
 
 
 def get_client_id():

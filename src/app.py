@@ -1,10 +1,10 @@
-from flask import Flask
+from flask import Flask, send_file
 from flask_restx import Api, Resource, fields
 from werkzeug.middleware.proxy_fix import ProxyFix
 
-from src import config
-from src.imgurapi import ImgurAPI
-from src.packerapi import PackerAPI
+import config
+from imgurapi import ImgurAPI
+from packerapi import PackerAPI
 
 app = Flask(__name__)
 app.wsgi_app = ProxyFix(app.wsgi_app)
@@ -61,8 +61,8 @@ class Packer(Resource):
 
     def get(self, album_hash):
         packer_api = PackerAPI()
-        packer_api.pack_cbz_or_zip(album_hash, False)
-        return True
+        url = packer_api.pack_cbz_or_zip(album_hash, False)
+        return send_file(url['url'], download_name=f'{album_hash}.cbz')
 
 
 @packer_pdf_namespace.route('/<string:album_hash>')
@@ -71,8 +71,8 @@ class Packer(Resource):
 
     def get(self, album_hash):
         packer_api = PackerAPI()
-        packer_api.pack_pdf(album_hash)
-        return True
+        url = packer_api.pack_pdf(album_hash)
+        return send_file(url['url'], download_name=f'{album_hash}.pdf')
 
 
 @packer_zip_namespace.route('/<string:album_hash>')
@@ -81,8 +81,8 @@ class Packer(Resource):
 
     def get(self, album_hash):
         packer_api = PackerAPI()
-        packer_api.pack_cbz_or_zip(album_hash, True)
-        return True
+        url = packer_api.pack_cbz_or_zip(album_hash, True)
+        return send_file(url['url'], download_name=f'{album_hash}.zip')
 
 
 if __name__ == '__main__':

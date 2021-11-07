@@ -4,8 +4,8 @@ import requests
 import json
 from pathlib import Path
 
-from src import config
-from src.utils import get_project_root
+import config
+from utils import get_project_root
 
 
 class ImgurAPI:

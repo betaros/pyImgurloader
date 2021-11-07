@@ -3,7 +3,7 @@ from pathlib import Path
 from PIL import Image
 from zipfile import ZipFile
 
-from src.utils import get_project_root
+from utils import get_project_root
 
 
 class PackerAPI:
@@ -19,16 +19,21 @@ class PackerAPI:
 
         folder_path = Path(self.root, 'temp', album_hash).glob('*.jpg')
 
-        if not file_path.is_file():
+        if file_path.is_file():
+            return {'status': 'Already there', 'url': f'{file_path}'}
+        else:
             with ZipFile(file_path, 'w') as cbzObj:
                 for element in folder_path:
-                    cbzObj.write(str(element.name))
+                    cbzObj.write(str(element))
+            return {'status': 'Downloaded', 'url': f'{file_path}'}
 
     def pack_pdf(self, album_hash):
         file_path = Path(self.root, 'temp', album_hash, f'{album_hash}.pdf')
         folder_path = Path(self.root, 'temp', album_hash).glob('*.jpg')
 
-        if not file_path.is_file():
+        if file_path.is_file():
+            return {'status': 'Already there', 'url': f'{file_path}'}
+        else:
             with ZipFile(file_path, 'w') as pdfObj:
                 image_list = []
 
@@ -38,3 +43,4 @@ class PackerAPI:
                     image_list.append(im)
 
                 image_list[0].save(file_path, save_all=True, append_images=image_list[1:])
+                return {'status': 'Downloaded', 'url': f'{file_path}'}
