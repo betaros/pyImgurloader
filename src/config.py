@@ -1,9 +1,12 @@
 import json
 from pathlib import Path
 
+from src.utils import get_project_root
+
 
 def get_config():
-    with open(Path('config.json'), 'r') as config_file:
+    root = get_project_root()
+    with open(Path(root, 'config.json'), 'r') as config_file:
         return json.load(config_file)
 
 
@@ -16,7 +19,8 @@ def get_client_secret():
 
 
 def set_config(client):
-    with open(Path('config.json'), 'w', encoding='utf-8') as config_file:
+    root = get_project_root()
+    with open(Path(root, 'config.json'), 'w', encoding='utf-8') as config_file:
         json.dump(client, config_file, indent=2)
 
     return client

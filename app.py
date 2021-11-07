@@ -4,7 +4,7 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 
 from src import config
 from src.imgurapi import ImgurAPI
-from src.packer import Packer
+from src.packerapi import PackerAPI
 
 app = Flask(__name__)
 app.wsgi_app = ProxyFix(app.wsgi_app)
@@ -14,7 +14,9 @@ api = Api(app, version='1.0', title='pyImgurloader',
 
 config_namespace = api.namespace('config', description='Config settings')
 imgur_namespace = api.namespace('imgur', description='Imgur API')
-packer_namespace = api.namespace('packer', description='Packs images')
+packer_cbz_namespace = api.namespace('packer_cbz', description='Packs images to cbz')
+packer_pdf_namespace = api.namespace('packer_pdf', description='Packs images to pdf')
+packer_zip_namespace = api.namespace('packer_zip', description='Packs images to zip')
 
 config_model = api.model('Config_model', {
     'client_id': fields.String(required=True, description='Client id'),
@@ -53,13 +55,34 @@ class Imgur(Resource):
         return imgur_api.get_images(album_hash)
 
 
-@packer_namespace.route('/<string:album_hash>')
+@packer_cbz_namespace.route('/<string:album_hash>')
 @imgur_namespace.param('album_hash', "Hash string of the album")
 class Packer(Resource):
 
-    def get(self):
+    def get(self, album_hash):
+        packer_api = PackerAPI()
+        packer_api.pack_cbz_or_zip(album_hash, False)
+        return True
 
-        return None
+
+@packer_pdf_namespace.route('/<string:album_hash>')
+@imgur_namespace.param('album_hash', "Hash string of the album")
+class Packer(Resource):
+
+    def get(self, album_hash):
+        packer_api = PackerAPI()
+        packer_api.pack_pdf(album_hash)
+        return True
+
+
+@packer_zip_namespace.route('/<string:album_hash>')
+@imgur_namespace.param('album_hash', "Hash string of the album")
+class Packer(Resource):
+
+    def get(self, album_hash):
+        packer_api = PackerAPI()
+        packer_api.pack_cbz_or_zip(album_hash, True)
+        return True
 
 
 if __name__ == '__main__':

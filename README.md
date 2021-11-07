@@ -8,3 +8,4 @@ A small API to download imgur album images and bundles them to cbz, zip or pdf f
 - flask-restx
 - Werkzeug
 - requests
+- pillow
